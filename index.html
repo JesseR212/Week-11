@@ -4,17 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tic-Tac-Toe Game</title>
+    <!-- Including Bootstrap CSS for styling -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
     <style>
+      /* Styling the game board to display it as a 3x3 grid */
       .game-board {
         display: grid;
         grid-template-columns: repeat(3, 100px);
         grid-template-rows: repeat(3, 100px);
         gap: 5px;
       }
+      /* Styling each cell on the game board */
       .game-cell {
         width: 100px;
         height: 100px;
@@ -27,10 +30,12 @@
         border: 1px solid #ccc;
         cursor: pointer;
       }
+      /* Disabling cell interactions once it’s filled */
       .game-cell.disabled {
         pointer-events: none;
         background-color: #ddd;
       }
+      /* Styling for the winner message */
       .winner-message {
         margin-top: 20px;
         font-size: 1.5em;
@@ -40,84 +45,93 @@
   <body class="bg-light">
     <div class="container text-center mt-5">
       <h1 class="mb-4">Tic-Tac-Toe Game</h1>
+      <!-- Game board container -->
       <div class="game-board" id="gameBoard"></div>
+      <!-- Winner message container -->
       <div class="winner-message" id="winnerMessage"></div>
+      <!-- Reset game button -->
       <button class="btn btn-primary mt-3" id="resetButton">Reset Game</button>
     </div>
 
+    <!-- Including jQuery library for event handling -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-      const board = [];
-      let currentPlayer = "X";
-      let gameActive = true;
+      // Initializing game variables
+      const board = []; // Board array holds the state of each cell
+      let currentPlayer = "X"; // Player X starts the game
+      let gameActive = true; // Game is active initially
 
-      // Initialize the board
+      // Function to create the game board
       function createBoard() {
         for (let i = 0; i < 9; i++) {
-          board[i] = null;
+          board[i] = null; // Set each cell to null initially
+          // Append a div for each cell on the game board
           $("#gameBoard").append(
             `<div class="game-cell" data-cell="${i}"></div>`
           );
         }
 
-        // Attach click handler to each cell
+        // Attach click handler to each game cell
         $(".game-cell").on("click", handleCellClick);
       }
 
-      // Handle cell click
+      // Function to handle a click on a game cell
       function handleCellClick() {
-        const cellIndex = $(this).data("cell");
-        if (board[cellIndex] || !gameActive) return;
+        const cellIndex = $(this).data("cell"); // Get the index of the clicked cell
+        if (board[cellIndex] || !gameActive) return; // Ignore if cell is already filled or the game is inactive
 
-        // Update the board with the current player's symbol
+        // Update the board with the current player's symbol (X or O)
         board[cellIndex] = currentPlayer;
-        $(this).text(currentPlayer).addClass("disabled");
+        $(this).text(currentPlayer).addClass("disabled"); // Display symbol and disable cell
 
-        // Check for winner or draw
+        // Check if there's a winner
         if (checkWinner()) {
-          $("#winnerMessage").text(`${currentPlayer} Wins!`);
-          gameActive = false;
-          return;
-        }
-        if (board.every((cell) => cell !== null)) {
-          $("#winnerMessage").text("It's a Draw!");
-          gameActive = false;
+          $("#winnerMessage").text(`${currentPlayer} Wins!`); // Display winner message
+          gameActive = false; // Deactivate the game
           return;
         }
 
-        // Switch player
+        // Check if the game ends in a draw (all cells filled)
+        if (board.every((cell) => cell !== null)) {
+          $("#winnerMessage").text("It's a Draw!"); // Display draw message
+          gameActive = false; // Deactivate the game
+          return;
+        }
+
+        // Switch to the next player (X -> O or O -> X)
         currentPlayer = currentPlayer === "X" ? "O" : "X";
       }
 
-      // Check for winner
+      // Function to check if there’s a winner
       function checkWinner() {
         const winningCombinations = [
-          [0, 1, 2],
-          [3, 4, 5],
-          [6, 7, 8],
-          [0, 3, 6],
-          [1, 4, 7],
-          [2, 5, 8],
-          [0, 4, 8],
-          [2, 4, 6],
+          [0, 1, 2], // Top row
+          [3, 4, 5], // Middle row
+          [6, 7, 8], // Bottom row
+          [0, 3, 6], // Left column
+          [1, 4, 7], // Center column
+          [2, 5, 8], // Right column
+          [0, 4, 8], // Diagonal (top-left to bottom-right)
+          [2, 4, 6], // Diagonal (top-right to bottom-left)
         ];
 
+        // Check if any of the winning combinations are met
         return winningCombinations.some((combination) => {
           const [a, b, c] = combination;
           return board[a] && board[a] === board[b] && board[a] === board[c];
         });
       }
 
-      // Reset the game
+      // Function to reset the game
       $("#resetButton").on("click", function () {
-        board.fill(null);
-        currentPlayer = "X";
-        gameActive = true;
-        $("#winnerMessage").text("");
-        $(".game-cell").text("").removeClass("disabled");
+        board.fill(null); // Reset the board
+        currentPlayer = "X"; // Set Player X to start
+        gameActive = true; // Activate the game again
+        $("#winnerMessage").text(""); // Clear the winner message
+        $(".game-cell").text("").removeClass("disabled"); // Reset the game cells
       });
 
-      // Start the game
+      // Initialize the game when the document is ready
       $(document).ready(function () {
         createBoard();
       });
